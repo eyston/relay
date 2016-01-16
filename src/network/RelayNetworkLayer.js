@@ -16,8 +16,11 @@
 import type RelayMutationRequest from 'RelayMutationRequest';
 const RelayProfiler = require('RelayProfiler');
 import type RelayQueryRequest from 'RelayQueryRequest';
+import type RelaySubscriptionRequest from 'RelaySubscriptionRequest';
+import type {Subscription} from 'RelayTypes';
 
 const invariant = require('invariant');
+const warning = require('warning');
 
 type NetworkLayer = {
   sendMutation: (mutationRequest: RelayMutationRequest) => ?Promise;
@@ -51,6 +54,31 @@ var RelayNetworkLayer = {
     if (promise) {
       Promise.resolve(promise).done();
     }
+  },
+
+  sendSubscription(subscriptionRequest: RelaySubscriptionRequest): Subscription {
+    const networkLayer = getCurrentNetworkLayer();
+    const result = networkLayer.sendSubscription(subscriptionRequest);
+
+    if (result) {
+      if (typeof result === 'function') {
+        return {
+          dispose: result,
+        };
+      } else if (result.dispose && typeof result.dispose === 'function') {
+        return result;
+      } else {
+        warning(
+          false,
+          'NetworkLayer: `sendSubscription` should return a disposable or a ' +
+          'function.'
+        );
+      }
+    }
+
+    return {
+      dispose() { }, // noop
+    };
   },
 
   supports(...options: Array<string>): boolean {

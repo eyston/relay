@@ -21,6 +21,7 @@ const RelayQL = require('RelayQL');
 const RelayRootContainer = require('RelayRootContainer');
 const RelayRoute = require('RelayRoute');
 const RelayStore = require('RelayStore');
+const RelaySubscription = require('RelaySubscription');
 const RelayTaskScheduler = require('RelayTaskScheduler');
 const RelayInternals = require('RelayInternals');
 
@@ -38,6 +39,7 @@ if (typeof global.__REACT_DEVTOOLS_GLOBAL_HOOK__ !== 'undefined') {
  */
 var RelayPublic = {
   Mutation: RelayMutation,
+  Subscription: RelaySubscription,
   PropTypes: RelayPropTypes,
   QL: RelayQL,
   RootContainer: RelayRootContainer,

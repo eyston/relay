@@ -32,6 +32,7 @@ export type Call = {
 export type CallValue = mixed;
 
 export type ClientMutationID = string;
+export type ClientSubscriptionID = string;
 
 export type DataID = string;
 

@@ -55,6 +55,8 @@ function printRelayOSSQuery(node: RelayQuery.Node): PrintedQuery {
     queryText = printRoot(node, printerState);
   } else if (node instanceof RelayQuery.Mutation) {
     queryText = printMutation(node, printerState);
+  } else if (node instanceof RelayQuery.Subscription) {
+    queryText = printSubscription(node, printerState);
   } else {
     // NOTE: `node` shouldn't be a field or fragment except for debugging. There
     // is no guarantee that it would be a valid server request if printed.
@@ -118,6 +120,21 @@ function printMutation(
   node: RelayQuery.Mutation,
   printerState: PrinterState
 ): string {
+  return printOperation('mutation', node, printerState);
+}
+
+function printSubscription(
+  node: RelayQuery.Subscription,
+  printerState: PrinterState
+): string {
+  return printOperation('subscription', node, printerState);
+}
+
+function printOperation(
+  operationName: string,
+  node: RelayQuery.Operation,
+  printerState: PrinterState
+): string {
   const call = node.getCall();
   const inputString = printArgument(
     node.getCallVariableName(),
@@ -127,16 +144,17 @@ function printMutation(
   );
   invariant(
     inputString,
-    'printRelayOSSQuery(): Expected mutation `%s` to have a value for `%s`.',
+    'printRelayOSSQuery(): Expected %s `%s` to have a value for `%s`.',
+    operationName,
     node.getName(),
     node.getCallVariableName()
   );
   // Note: children must be traversed before printing variable definitions
   const children = printChildren(node, printerState);
-  const mutationString = node.getName() + printVariableDefinitions(printerState);
+  const operationString = node.getName() + printVariableDefinitions(printerState);
   const fieldName = call.name + '(' + inputString + ')';
 
-  return 'mutation ' + mutationString + '{' + fieldName + children + '}';
+  return operationName + ' ' + operationString + '{' + fieldName + children + '}';
 }
 
 function printVariableDefinitions(printerState: PrinterState): string {
